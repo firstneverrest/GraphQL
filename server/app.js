@@ -2,9 +2,13 @@ const express = require('express');
 const { graphqlHTTP } = require('express-graphql');
 const schema = require('./schema/schema');
 const mongoose = require('mongoose');
+const cors = require('cors');
 require('dotenv').config({ path: './.env' });
 
 const app = express();
+
+// allow cross-origin request
+app.use(cors);
 
 mongoose.connect(
   `mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASSWORD}@${process.env.MONGODB_CLUSTER}.1f312.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`
