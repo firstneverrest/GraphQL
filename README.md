@@ -177,9 +177,9 @@ const books = [
   { id: '1', name: 'Wind Song', genre: 'Fantasy', authorId: '1' },
   { id: '2', name: 'Strong Warrior', genre: 'Adventure', authorId: '2' },
   { id: '3', name: 'The Great Black Hole', genre: 'Sci-Fi', authorId: '3' },
-  { id: '3', name: 'Minor Major', genre: 'Sci-Fi', authorId: '1' },
-  { id: '3', name: 'Time Slot', genre: 'Sci-Fi', authorId: '2' },
-  { id: '3', name: 'Divine Sword', genre: 'Adventure', authorId: '3' },
+  { id: '4', name: 'Minor Major', genre: 'Sci-Fi', authorId: '1' },
+  { id: '5', name: 'Time Slot', genre: 'Sci-Fi', authorId: '2' },
+  { id: '6', name: 'Divine Sword', genre: 'Adventure', authorId: '3' },
 ];
 
 // define author type
@@ -287,4 +287,93 @@ app.use(
 app.listen(4000, () => {
   console.log('server is listening on port 4000');
 });
+```
+
+## Create model
+
+In order to make MongoDB understand your data schema, you need to define schema with mongoose. Then, import model in app.js.
+
+```js
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
+
+const bookSchema = new Schema({
+  name: String,
+  genre: String,
+  authorId: String,
+});
+
+// create collection in MongoDB with this schema
+module.exports = mongoose.model('Book', bookSchema);
+```
+
+## Mutation
+
+Mutation is making change with data like add, edit, remove data.
+
+```js
+const Book = require('../models/book');
+const Author = require('../models/author')
+...
+const Mutation = new GraphQLObjectType({
+  name: 'Mutation',
+  fields: {
+    addAuthor: {
+      type: AuthorType,
+      args: {
+        name: { type: GraphQLString },
+        star: { type: GraphQLFloat },
+      },
+      resolve(parent, args) {
+        // create an instance to add author to database
+        let author = new Author({
+          name: args.name,
+          star: args.star,
+        });
+        return author.save();
+      },
+    },
+    addBook: {
+      type: BookType,
+      args: {
+        name: { type: GraphQLString },
+        genre: { type: GraphQLString },
+        authorId: { type: GraphQLID },
+      },
+      resolve(parent, args) {
+        // create an instance to add author to database
+        let book = new Book({
+          name: args.name,
+          genre: args.genre,
+          authorId: args.authorId,
+        });
+        return book.save();
+      },
+    },
+  },
+});
+
+
+module.exports = new GraphQLSchema({
+  query: RootQuery,
+  mutation: Mutation
+});
+```
+
+```js
+// query addAuthor
+mutation {
+  addAuthor(name: "James Kotlin", star: 4) {
+    name
+    star
+  }
+}
+
+// query addBook
+mutation {
+  addBook(name: "Wind Song", genre: "Fantasy" authorId: "61553ce8ff3c9ab58a9fb86e") {
+    name
+    genre
+  }
+}
 ```
