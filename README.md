@@ -4,6 +4,15 @@ GraphQL is a query language for APIs which is an alternative for REST APIs. The 
 
 To illustrate how GraphQL works, I created web server with express and front-end application with React.
 
+## Technologies
+
+![image](https://img.shields.io/badge/GraphQl-E10098?style=for-the-badge&logo=graphql&logoColor=white)
+![image](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
+![image](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white)
+![image](https://img.shields.io/badge/MongoDB-white?style=for-the-badge&logo=mongodb&logoColor=4EA94B)
+![image](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![image](https://img.shields.io/badge/Apollo-311C87?&style=for-the-badge&logo=Apollo%20GraphQL&logoColor=white)
+
 ## Install GraphQL
 
 You need to install graphql and express-graphql packages to use graphql in express.
@@ -482,4 +491,87 @@ const Mutation = new GraphQLObjectType({
     },
   },
 });
+```
+
+## Apollo
+
+Front-end application like React do not understand how to query with GraphQL. Thus, Apollo come to handle GraphQL queries as a GraphQL Client.
+
+### Installation for react
+
+```
+npm install apollo-boost react-apollo graphql --save
+```
+
+### Set up in app.js
+
+```js
+import React from 'react';
+import ApolloClient from 'apollo-boost';
+import { ApolloProvider } from 'react-apollo';
+import BookList from './components/BookList';
+
+const client = new ApolloClient({
+  uri: 'http://localhost:4000/graphql',
+});
+
+function App() {
+  return (
+    <ApolloProvider client={client}>
+      <h1>Book Shop</h1>
+      <BookList />
+    </ApolloProvider>
+  );
+}
+
+export default App;
+```
+
+### GraphQL Query
+
+```js
+// BookList.js
+import React, { useState, useEffect } from 'react';
+import { gql } from 'apollo-boost';
+import { graphql } from 'react-apollo';
+import classes from './BookList.module.css';
+
+const getBooksQuery = gql`
+  {
+    books {
+      id
+      name
+      genre
+    }
+  }
+`;
+
+const BookList = (props) => {
+  const [books, setBooks] = useState([]);
+  const isLoading = props.data.loading;
+
+  useEffect(() => {
+    displayBooks();
+  }, [isLoading]);
+
+  const displayBooks = () => {
+    setBooks(props.data.books);
+  };
+
+  if (books === undefined) {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <section className={classes.books_container}>
+      <ul id="book-list">
+        {books.map((book) => {
+          return <li key={book.id}>{`${book.name} (${book.genre}`})</li>;
+        })}
+      </ul>
+    </section>
+  );
+};
+
+export default graphql(getBooksQuery)(BookList);
 ```
