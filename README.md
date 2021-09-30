@@ -377,3 +377,109 @@ mutation {
   }
 }
 ```
+
+## Find data from database
+
+```js
+// app.js
+const Author = require('../models/author');
+const Book = require('../models/book');
+...
+// define book type
+const BookType = new GraphQLObjectType({
+  name: 'Book',
+  fields: () => ({
+    id: { type: GraphQLID },
+    name: { type: GraphQLString },
+    genre: { type: GraphQLString },
+    author: {
+      type: AuthorType,
+      resolve(parent, args) {
+        // use model to find data by id argument
+        return Author.findById(parent.authorId);
+      },
+    },
+  }),
+});
+...
+const RootQuery = new GraphQLObjectType({
+  name: 'RootQueryType',
+  fields: {
+    book: {
+      type: BookType,
+      args: { id: { type: GraphQLID } },
+      resolve(parent, args) {
+        // code to get data from database or other source
+        return Book.findById(args.id);
+      },
+    },
+    author: {
+      type: AuthorType,
+      args: { id: { type: GraphQLID } },
+      resolve(parent, args) {
+        return Author.findById(args.id);
+      },
+    },
+    books: {
+      type: new GraphQLList(BookType),
+      resolve(parent, args) {
+        // return all books because it all matched
+        return Book.find({});
+      },
+    },
+    authors: {
+      type: new GraphQLList(AuthorType),
+      resolve(parent, args) {
+        return Author.find({});
+      },
+    },
+  },
+});
+...
+```
+
+## Not allow null value
+
+Some data in the schema should not be null when adding data. Therefore, you can use `GraphQLNonNull` to prevent this situation.
+
+```js
+const { GraphQLNonNull } = graphql;
+...
+const Mutation = new GraphQLObjectType({
+  name: 'Mutation',
+  fields: {
+    addAuthor: {
+      type: AuthorType,
+      args: {
+        name: { type: new GraphQLNonNull(GraphQLString) },
+        star: { type: new GraphQLNonNull(GraphQLFloat) },
+      },
+      resolve(parent, args) {
+        // create an instance to add author to database
+        let author = new Author({
+          name: args.name,
+          star: args.star,
+        });
+        return author.save();
+      },
+    },
+    addBook: {
+      type: BookType,
+      args: {
+        name: { type: new GraphQLNonNull(GraphQLString) },
+        genre: { type: new GraphQLNonNull(GraphQLString) },
+        authorId: { type: new GraphQLNonNull(GraphQLID) },
+      },
+      resolve(parent, args) {
+        // create an instance to add author to database
+        let book = new Book({
+          name: args.name,
+          genre: args.genre,
+          authorId: args.authorId,
+        });
+        return book.save();
+      },
+    },
+  },
+});
+```
