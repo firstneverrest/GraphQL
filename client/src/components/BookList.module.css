@@ -1,0 +1,9 @@
+.books_container {
+  box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+  padding: 2rem 3rem;
+  margin-top: 1rem;
+}
+
+ul > li:not(:last-child) {
+  margin-bottom: 4px;
+}
