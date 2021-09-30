@@ -8,7 +8,12 @@ require('dotenv').config({ path: './.env' });
 const app = express();
 
 // allow cross-origin request
-app.use(cors);
+// app.use(cors);
+const corsOptions = {
+  origin: 'http://localhost:3000',
+  credentials: true,
+};
+app.use(cors(corsOptions));
 
 mongoose.connect(
   `mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASSWORD}@${process.env.MONGODB_CLUSTER}.1f312.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`
