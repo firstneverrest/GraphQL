@@ -10,6 +10,7 @@ const {
   GraphQLID,
   GraphQLFloat,
   GraphQLList,
+  GraphQLNonNull,
 } = graphql;
 
 // define book type
@@ -84,8 +85,8 @@ const Mutation = new GraphQLObjectType({
     addAuthor: {
       type: AuthorType,
       args: {
-        name: { type: GraphQLString },
-        star: { type: GraphQLFloat },
+        name: { type: new GraphQLNonNull(GraphQLString) },
+        star: { type: new GraphQLNonNull(GraphQLFloat) },
       },
       resolve(parent, args) {
         // create an instance to add author to database
@@ -99,9 +100,9 @@ const Mutation = new GraphQLObjectType({
     addBook: {
       type: BookType,
       args: {
-        name: { type: GraphQLString },
-        genre: { type: GraphQLString },
-        authorId: { type: GraphQLID },
+        name: { type: new GraphQLNonNull(GraphQLString) },
+        genre: { type: new GraphQLNonNull(GraphQLString) },
+        authorId: { type: new GraphQLNonNull(GraphQLID) },
       },
       resolve(parent, args) {
         // create an instance to add author to database
