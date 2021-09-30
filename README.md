@@ -152,3 +152,139 @@ const BookType = new GraphQLObjectType({
   }),
 });
 ```
+
+```js
+// query example
+{
+  book(id: 1) {
+    name
+    genre
+    author{
+      name
+      star
+    }
+  }
+}
+```
+
+## GraphQL Lists
+
+In case your child data have more than one. For example, one author has more than one book. How we can output all of the author's books? The solution is graphql Lists.
+
+```js
+// schema data
+const books = [
+  { id: '1', name: 'Wind Song', genre: 'Fantasy', authorId: '1' },
+  { id: '2', name: 'Strong Warrior', genre: 'Adventure', authorId: '2' },
+  { id: '3', name: 'The Great Black Hole', genre: 'Sci-Fi', authorId: '3' },
+  { id: '3', name: 'Minor Major', genre: 'Sci-Fi', authorId: '1' },
+  { id: '3', name: 'Time Slot', genre: 'Sci-Fi', authorId: '2' },
+  { id: '3', name: 'Divine Sword', genre: 'Adventure', authorId: '3' },
+];
+
+// define author type
+const AuthorType = new GraphQLObjectType({
+  name: 'Author',
+  fields: () => ({
+    id: { type: GraphQLID },
+    name: { type: GraphQLString },
+    star: { type: GraphQLFloat },
+    books: {
+      type: new GraphQLList(BookType),
+      resolve(parent, args) {
+        return _.filter(books, { authorId: parent.id });
+      },
+    },
+  }),
+});
+```
+
+```js
+// query example
+{
+  author(id: 1) {
+    name
+    star
+    books{
+      name
+      genre
+    }
+  }
+}
+```
+
+## Root Queries
+
+Maybe you would like to send all data like all books or all authors. You can do that in root queries.
+
+```js
+const RootQuery = new GraphQLObjectType({
+  name: 'RootQueryType',
+  fields: {
+    book: {
+      type: BookType,
+      args: { id: { type: GraphQLID } },
+      resolve(parent, args) {
+        // code to get data from database or other source
+        return _.find(books, { id: args.id });
+      },
+    },
+    author: {
+      type: AuthorType,
+      args: { id: { type: GraphQLID } },
+      resolve(parent, args) {
+        return _.find(authors, { id: args.id });
+      },
+    },
+    // add books
+    books: {
+      type: new GraphQLList(BookType),
+      resolve(parent, args) {
+        return books;
+      },
+    },
+    // add authors
+    authors: {
+      type: new GraphQLList(AuthorType),
+      resolve(parent, args) {
+        return authors;
+      },
+    },
+  },
+});
+```
+
+## Connect to Database
+
+In this tutorial, I will use MongoDB Atlas as a MongoDB Hosting.
+
+```js
+// app.js
+const express = require('express');
+const { graphqlHTTP } = require('express-graphql');
+const schema = require('./schema/schema');
+const mongoose = require('mongoose');
+require('dotenv').config({ path: './.env' });
+
+const app = express();
+
+mongoose.connect(
+  `mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASSWORD}@${process.env.MONGODB_CLUSTER}.1f312.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`
+);
+mongoose.connection.once('open', () => {
+  console.log('connected to database');
+});
+
+// middleware - go to /graphql to enable graphical tool
+app.use(
+  '/graphql',
+  graphqlHTTP({
+    schema,
+    graphiql: true,
+  })
+);
+
+app.listen(4000, () => {
+  console.log('server is listening on port 4000');
+});
+```
