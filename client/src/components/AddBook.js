@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { graphql } from 'react-apollo';
-import { getAuthorsQuery } from '../queries/queries';
+import { getAuthorsQuery, addBookMutation } from '../queries/queries';
 import classes from './AddBook.module.css';
 
 const AddBook = (props) => {
   const [authors, setAuthors] = useState([]);
+  const [book, setBook] = useState('');
+  const [genre, setGenre] = useState('');
+  const [author, setAuthor] = useState('');
   const isLoading = props.data.loading;
 
   useEffect(() => {
@@ -15,25 +18,40 @@ const AddBook = (props) => {
     setAuthors(props.data.authors);
   };
 
+  const bookHandler = (event) => {
+    setBook(event.target.value);
+  };
+  const genreHandler = (event) => {
+    setGenre(event.target.value);
+  };
+  const authorHandler = (event) => {
+    setAuthor(event.target.value);
+  };
+
   if (authors === undefined) {
     return <div>Loading...</div>;
   }
 
+  const submitAddBook = (event) => {
+    event.preventDefault();
+    console.log(book, genre, author);
+  };
+
   return (
     <section className={classes.books_container}>
       <h3>Add a Book</h3>
-      <form>
+      <form onSubmit={submitAddBook}>
         <div>
-          <label for="book">Book Name:</label>
-          <input type="text" name="book" />
+          <label htmlFor="book">Book Name:</label>
+          <input type="text" name="book" onChange={bookHandler} />
         </div>
         <div className="field">
-          <label for="genre">Genre:</label>
-          <input type="text" name="genre" />
+          <label htmlFor="genre">Genre:</label>
+          <input type="text" name="genre" onChange={genreHandler} />
         </div>
         <div className="field">
-          <label for="book">Author:</label>
-          <select>
+          <label htmlFor="book">Author:</label>
+          <select onChange={authorHandler}>
             {authors.map((authors) => {
               return (
                 <option key={authors.id} value={authors.id}>
