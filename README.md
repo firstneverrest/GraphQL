@@ -575,3 +575,32 @@ const BookList = (props) => {
 
 export default graphql(getBooksQuery)(BookList);
 ```
+
+## External Query File
+
+GraphQL query can be removed from internal file to external file. Then, import query to use in your components.
+
+```js
+import { gql } from 'apollo-boost';
+
+const getBooksQuery = gql`
+  {
+    books {
+      id
+      name
+      genre
+    }
+  }
+`;
+
+const getAuthorsQuery = gql`
+  {
+    authors {
+      id
+      name
+    }
+  }
+`;
+
+export { getAuthorsQuery, getBooksQuery };
+```
