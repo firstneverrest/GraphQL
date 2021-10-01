@@ -7303,6 +7303,11 @@
   "resolved" "https://registry.npmjs.org/lodash._reinterpolate/-/lodash._reinterpolate-3.0.0.tgz"
   "version" "3.0.0"
 
+"lodash.flowright@^3.5.0":
+  "integrity" "sha1-K1//OZcW1+fcVyT+k0n2cGUYTWc="
+  "resolved" "https://registry.npmjs.org/lodash.flowright/-/lodash.flowright-3.5.0.tgz"
+  "version" "3.5.0"
+
 "lodash.memoize@^4.1.2":
   "integrity" "sha1-vMbEmkKihA7Zl/Mj6tpezRguC/4="
   "resolved" "https://registry.npmjs.org/lodash.memoize/-/lodash.memoize-4.1.2.tgz"
