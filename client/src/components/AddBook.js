@@ -1,31 +1,41 @@
 import React, { useState, useEffect } from 'react';
 import { graphql } from 'react-apollo';
+import * as compose from 'lodash.flowright';
 import { getAuthorsQuery, addBookMutation } from '../queries/queries';
 import classes from './AddBook.module.css';
 
 const AddBook = (props) => {
   const [authors, setAuthors] = useState([]);
-  const [book, setBook] = useState('');
+  const [bookName, setBookName] = useState('');
   const [genre, setGenre] = useState('');
-  const [author, setAuthor] = useState('');
-  const isLoading = props.data.loading;
+  const [authorId, setAuthorId] = useState('');
+  const isLoading = props.getAuthorsQuery.loading;
 
   useEffect(() => {
     displayAuthors();
   }, [isLoading]);
 
+  useEffect(() => {
+    if (authors !== undefined) {
+      for (const id in authors[0]) {
+        setAuthorId(authors[0].id);
+        break;
+      }
+    }
+  }, [authors]);
+
   const displayAuthors = () => {
-    setAuthors(props.data.authors);
+    setAuthors(props.getAuthorsQuery.authors);
   };
 
   const bookHandler = (event) => {
-    setBook(event.target.value);
+    setBookName(event.target.value);
   };
   const genreHandler = (event) => {
     setGenre(event.target.value);
   };
-  const authorHandler = (event) => {
-    setAuthor(event.target.value);
+  const authorIdHandler = (event) => {
+    setAuthorId(event.target.value);
   };
 
   if (authors === undefined) {
@@ -34,13 +44,20 @@ const AddBook = (props) => {
 
   const submitAddBook = (event) => {
     event.preventDefault();
-    console.log(book, genre, author);
+    props.addBookMutation({
+      variables: {
+        name: bookName,
+        genre: genre,
+        authorId: authorId,
+      },
+    });
   };
+  console.log(props);
 
   return (
     <section className={classes.books_container}>
       <h3>Add a Book</h3>
-      <form onSubmit={submitAddBook}>
+      <form onSubmit={(event) => submitAddBook(event)}>
         <div>
           <label htmlFor="book">Book Name:</label>
           <input type="text" name="book" onChange={bookHandler} />
@@ -51,11 +68,11 @@ const AddBook = (props) => {
         </div>
         <div className="field">
           <label htmlFor="book">Author:</label>
-          <select onChange={authorHandler}>
-            {authors.map((authors) => {
+          <select onChange={authorIdHandler} value={authorId}>
+            {authors.map((author) => {
               return (
-                <option key={authors.id} value={authors.id}>
-                  {authors.name}
+                <option key={author.id} value={author.id}>
+                  {author.name}
                 </option>
               );
             })}
@@ -67,4 +84,7 @@ const AddBook = (props) => {
   );
 };
 
-export default graphql(getAuthorsQuery)(AddBook);
+export default compose(
+  graphql(getAuthorsQuery, { name: 'getAuthorsQuery' }),
+  graphql(addBookMutation, { name: 'addBookMutation' })
+)(AddBook);
