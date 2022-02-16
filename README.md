@@ -604,3 +604,51 @@ const getAuthorsQuery = gql`
 
 export { getAuthorsQuery, getBooksQuery };
 ```
+
+## Bind Mutation
+
+Not only simple graphql query can be added in the component, but also mutation. You can add multiple queries in the component using `compose` from lodash.flowright (compose was removed from react-apollo to reduce bundle size).
+
+```
+npm install lodash.flowright
+```
+
+```js
+import { graphql } from 'react-apollo';
+import * as compose from 'lodash.flowright';
+...
+export default compose(
+  graphql(getAuthorsQuery, { name: 'getAuthorsQuery' }),
+  graphql(addBookMutation, { name: 'addBookMutation' })
+)(AddBook);
+```
+
+## Query Variable
+
+Mutation can receive variables from the component to dynamically add data. The ! at the end of the variable type means not null.
+
+```js
+// queries.js
+const addBookMutation = gql`
+  mutation ($name: String!, $genre: String!, $authorId: ID) {
+    addBook(name: $name, genre: $genre, authorId: $authorId) {
+      name
+      id
+    }
+  }
+`;
+```
+
+```js
+// AddBook.js
+const submitAddBook = (event) => {
+  event.preventDefault();
+  props.addBookMutation({
+    variables: {
+      name: bookName,
+      genre: genre,
+      authorId: authorId,
+    },
+  });
+};
+```
